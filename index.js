@@ -26,18 +26,28 @@ async function hash(content_, options_) {
   return lastCID;
 }
 
-async function hashFiles(path, options) {
-  const { globSource } = await import('ipfs-http-client');
-  options = {
-    cidVersion: 0, // Lines up with the smart contract code
-    hidden: true,
-    ...options,
+async function ofDirWithStream(stream, filename) {
+  const { importer } = await import('ipfs-unixfs-importer');
+  const options = {
+    onlyHash: true,
+    wrapWithDirectory: true,
+    cidVersion: 0,
   };
 
-  const files = globSource(path, '**');
+  const input = [{
+    path: filename,
+    content: stream,
+  }];
 
-  const rootCID = await hash(files, options);
-  return rootCID;
+  let dirCid;
+  for await (const entry of importer(input, block, options)) {
+    if (entry.path === '') {
+      dirCid = entry.cid;
+    }
+  }
+  if (!dirCid) throw new Error('Could not determine directory CID');
+
+  return `ipfs://${dirCid.toString()}/${filename}`;
 }
 
 module.exports = {
@@ -47,13 +57,6 @@ module.exports = {
 
   of: hash,
 
-  async ofFile(path) {
-    return await hashFiles(path, {});
-  },
-
-  async ofDir(path) {
-    return await hashFiles(path, {
-      wrapWithDirectory: true,
-    });
-  },
+  ofDirWithStream,
 };
+
