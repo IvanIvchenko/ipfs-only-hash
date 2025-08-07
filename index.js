@@ -47,7 +47,7 @@ async function ofDirWithStream(stream, filename) {
   }
   if (!dirCid) throw new Error('Could not determine directory CID');
 
-  return `ipfs://${dirCid.toString()}/${filename}`;
+  return `${dirCid.toString()}/${filename}`;
 }
 
 module.exports = {
