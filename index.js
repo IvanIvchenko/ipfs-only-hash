@@ -7,23 +7,21 @@ const block = {
   },
 };
 
-async function hash(content_, options_) {
+async function hash(content, options) {
   const { importer } = await import('ipfs-unixfs-importer');
-  const options = options_ || {};
-  options.onlyHash = true;
+  options = options || {}
+  options.onlyHash = true
 
-  let content = content_;
   if (typeof content === 'string') {
-    content = [{ content: new TextEncoder().encode(content) }];
-  } else if (content instanceof Object.getPrototypeOf(Uint8Array)) {
-    content = [{ content }];
+    content = new TextEncoder().encode(content)
   }
 
-  let lastCID;
-  for await (const c of importer(content, block, options)) {
-    lastCID = c.cid;
+  let lastCid
+  for await (const { cid } of importer([{ content }], block, options)) {
+    lastCid = cid
   }
-  return lastCID;
+
+  return ${lastCid}
 }
 
 async function ofDirWithStream(stream, filename) {
