@@ -21,7 +21,7 @@ async function hash(content, options) {
     lastCid = cid
   }
 
-  return ${lastCid}
+  return `${lastCid}`;
 }
 
 async function ofDirWithStream(stream, filename) {
